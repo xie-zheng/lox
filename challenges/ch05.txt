@@ -1,0 +1,8 @@
+expr -> expr "." IDENTIFER
+expr -> expr "(" innerexpr ")"
+expr -> IDENTIFIER
+expr -> NUMBER
+
+innerexpr -> expr
+innerexpr -> expr "," innerexpr
+
