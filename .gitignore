@@ -1,2 +1,4 @@
 jlox/out/*
 jlox/.idea
+jlox/*.class
+jlox/*.iml
