@@ -229,16 +229,16 @@ class Scanner {
             while (isDigit(peek())) advance();
         }
 
-        // fix identifier parsing error
-        // 这里不是很严谨，如果数字后面接的是';'呢？
-        // 还有其他可能性吗？
-        if (!match(' ')) {
-            Lox.error(line, "Number can't be the start of an identifier");
-            while (isAlphaNumeric(peek())) {
-                advance();
-            }
-            return;
-        }
+//        // fix identifier parsing error
+//        // 这里不是很严谨，如果数字后面接的是';'呢？
+//        // 还有其他可能性吗？
+//        if (!match(' ') && !match(')') && !match(';')) {
+//            Lox.error(line, "Number can't be the start of an identifier");
+//            while (isAlphaNumeric(peek())) {
+//                advance();
+//            }
+//            return;
+//        }
         addToken(NUMBER,
                 Double.parseDouble(source.substring(start, current)));
     }
