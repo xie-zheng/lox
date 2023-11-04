@@ -5,7 +5,7 @@ import java.util.List;
 
 class Interpreter implements Expr.Visitor<Object>,
 							 Stmt.Visitor<Object> {
-	private Envirronment env = new Environment();
+	private Environment env = new Environment();
 
 	private Object evaluate(Expr expr) {
     	return expr.accept(this);
@@ -81,6 +81,12 @@ class Interpreter implements Expr.Visitor<Object>,
     	return null;
   	}
 
+	@Override
+	public Object visitAssignExpr(Expr.Assign expr) {
+		Object value = evaluate(expr.value);
+		env.assign(expr.name, value);
+		return value;
+	}
 
 	@Override
 	public Object visitLiteralExpr(Expr.Literal expr) {
