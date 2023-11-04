@@ -1,11 +1,17 @@
 package jlox;
 
 import jdk.incubator.vector.VectorOperators.Ternary;
+import java.util.List;
 
-class Interpreter implements Expr.Visitor<Object> {
+class Interpreter implements Expr.Visitor<Object>,
+							 Stmt.Visitor<Object> {
 	private Object evaluate(Expr expr) {
     	return expr.accept(this);
   	}
+
+	private void execute(Stmt stmt) {
+		stmt.accept(this);
+	}
 
 	private boolean isEqual(Object left, Object right) {
 		if (left == null && right == null) {
@@ -47,6 +53,19 @@ class Interpreter implements Expr.Visitor<Object> {
       		return text;
     	}
     	return object.toString();
+  	}
+
+	@Override
+    public Void visitExpressionStmt(Stmt.Expression stmt) {
+        evaluate(stmt.expression);
+        return null;
+    }
+
+	@Override
+    public Void visitPrintStmt(Stmt.Print stmt) {
+        Object value = evaluate(stmt.expression);
+    	System.out.println(stringify(value));
+    	return null;
   	}
 
 	@Override
@@ -126,10 +145,11 @@ class Interpreter implements Expr.Visitor<Object> {
     	// return null;
   	}
 
-	void interpret(Expr expression) { 
+	void interpret(List<Stmt> statements) { 
     	try {
-      		Object value = evaluate(expression);
-      		System.out.println(stringify(value));
+			for (Stmt statement: statements) {
+				execute(statement);
+			}
    	 	} catch (RuntimeError error) {
       		Lox.runtimeError(error);
     	}
