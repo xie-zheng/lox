@@ -5,6 +5,8 @@ import java.util.List;
 
 class Interpreter implements Expr.Visitor<Object>,
 							 Stmt.Visitor<Object> {
+	private Envirronment env = new Environment();
+
 	private Object evaluate(Expr expr) {
     	return expr.accept(this);
   	}
@@ -67,6 +69,18 @@ class Interpreter implements Expr.Visitor<Object>,
     	System.out.println(stringify(value));
     	return null;
   	}
+	
+	@Override
+	public Void visitVarStmt(Stmt.Var stmt) {
+    	Object value = null;
+    	if (stmt.initializer != null) {
+    		value = evaluate(stmt.initializer);
+    	}
+
+    	env.define(stmt.name.lexeme, value);
+    	return null;
+  	}
+
 
 	@Override
 	public Object visitLiteralExpr(Expr.Literal expr) {
@@ -93,7 +107,12 @@ class Interpreter implements Expr.Visitor<Object>,
 	    // Unreachable.
     	return null;
   	}
-	
+
+	@Override
+	public Object visitVariableExpr(Expr.Variable expr) {
+		return environment.get(expr.name);
+	}
+
 	private Object binaryExprDouble(Token operator, double left, double right) {
 		switch (operator.type) {
 			case GREATER:
