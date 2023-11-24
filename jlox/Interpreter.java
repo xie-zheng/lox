@@ -15,6 +15,20 @@ class Interpreter implements Expr.Visitor<Object>,
 		stmt.accept(this);
 	}
 
+	void executeBlock(List<Stmt> statements,
+	Environment env) {
+		Environment pre = this.env;
+		try {
+			this.env = env;
+
+			for (Stmt statement : statements) {
+				execute(statement);
+			}
+		} finally {
+			this.env = pre;
+		}
+	}
+
 	private boolean isEqual(Object left, Object right) {
 		if (left == null && right == null) {
 			return true;
@@ -82,6 +96,12 @@ class Interpreter implements Expr.Visitor<Object>,
   	}
 
 	@Override
+	public Void visitBlockStmt(Stmt.Block stmt) {
+		executeBlock(stmt.statements, new Environment(env));
+		return null;
+	}
+
+	@Override
 	public Object visitAssignExpr(Expr.Assign expr) {
 		Object value = evaluate(expr.value);
 		env.assign(expr.name, value);
@@ -116,7 +136,7 @@ class Interpreter implements Expr.Visitor<Object>,
 
 	@Override
 	public Object visitVariableExpr(Expr.Variable expr) {
-		return environment.get(expr.name);
+		return env.get(expr.name);
 	}
 
 	private Object binaryExprDouble(Token operator, double left, double right) {

@@ -61,8 +61,8 @@ class Parser {
         if (match(PRINT)) {
             return printStatement();
         }
-        if (match(VAR)) {
-            return varStatement();
+        if (match(LEFT_BRACE)) {
+            return new Stmt.Block(block());
         }
         return expressionStatement();
     }
@@ -73,17 +73,21 @@ class Parser {
         return new Stmt.Print(value);
     }
 
-    private Stmt varStatement() {
-        Expr var = ; // variable name
-        consume(EQUAL, "Expect '=' after variable");
-        Expr expr = expression();
-         
-    }
-
     private Stmt expressionStatement() {
         Expr expr = expression();
         consume(SEMICOLON, "Expect ';' after expression.");
         return new Stmt.Expression(expr);
+    }
+
+    private List<Stmt> block() {
+        List<Stmt> statements = new ArrayList<>();
+
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
     
