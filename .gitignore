@@ -3,3 +3,4 @@ jlox/.idea
 jlox/*.class
 jlox/*.iml
 .DS_Store
+.vscode
