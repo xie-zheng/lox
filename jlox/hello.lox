@@ -1,3 +1,7 @@
+// clock function
+var pre = clock();
+
+// scope
 var a = "global a";
 var b = "global b";
 var c = "global c";
@@ -18,6 +22,8 @@ print a;
 print b;
 print c;
 
+
+// for loop
 var x = 0;
 var temp = 0;
 for (var y = 1; x < 10; y = temp + y) {
@@ -25,3 +31,11 @@ for (var y = 1; x < 10; y = temp + y) {
   temp = x;
   x = y;
 }
+
+var now = clock();
+
+print "starts at";
+print pre;
+
+print "ends at";
+print now;
