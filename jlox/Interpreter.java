@@ -1,11 +1,14 @@
 package jlox;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
   final Environment globals = new Environment();
   private Environment env = globals;
+  private final Map<Expr, Integer> locals = new HashMap<>();
 
   Interpreter() {
     globals.define(
@@ -34,6 +37,10 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
   private void execute(Stmt stmt) {
     stmt.accept(this);
+  }
+
+  void resolve(Expr expr, int depth) {
+    locals.put(expr, depth);
   }
 
   void executeBlock(List<Stmt> statements, Environment env) {
@@ -99,7 +106,7 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
   @Override
   public Void visitFunctionStmt(Stmt.Function stmt) {
-    LoxFunction function = new LoxFunction(stmt);
+    LoxFunction function = new LoxFunction(stmt, env);
     env.define(stmt.name.lexeme, function);
     return null;
   }
@@ -159,7 +166,14 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
   @Override
   public Object visitAssignExpr(Expr.Assign expr) {
     Object value = evaluate(expr.value);
-    env.assign(expr.name, value);
+
+    Integer distance = locals.get(expr);
+    if (distance != null) {
+      env.assignAt(distance, expr.name, value);
+    } else {
+      globals.assign(expr.name, value);
+    }
+
     return value;
   }
 
@@ -208,7 +222,16 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Object> {
 
   @Override
   public Object visitVariableExpr(Expr.Variable expr) {
-    return env.get(expr.name);
+    return lookUpVariable(expr.name, expr);
+  }
+
+  private Object lookUpVariable(Token name, Expr expr) {
+    Integer distance = locals.get(expr);
+    if (distance != null) {
+      return env.getAt(distance, name.lexeme);
+    } else {
+      return globals.get(name);
+    }
   }
 
   private Object binaryExprDouble(Token operator, double left, double right) {
